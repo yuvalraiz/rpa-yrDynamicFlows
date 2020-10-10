@@ -115,7 +115,7 @@ flow:
           - 'FALSE': SUCCESS
     - wait_for_flow:
         do:
-          yrDynamicFlows.internal.remote_flow.wait_for_flow:
+          YuvalRaiz.DynamicFlows.Internal.invoke_remote_flow.wait_for_flow:
             - oohost: '${oohost}'
             - ooprotocol: '${ooprotocol}'
             - ooport: '${ooport}'
