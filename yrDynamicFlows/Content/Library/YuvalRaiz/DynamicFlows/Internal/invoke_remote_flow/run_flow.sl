@@ -4,9 +4,9 @@
 #! @input wait_to_finish: true, false
 #!!#
 ########################################################################################################################
-namespace: yrDynamicFlows.internal
+namespace: YuvalRaiz.DynamicFlows.Internal.invoke_remote_flow
 flow:
-  name: InvokeFlow
+  name: run_flow
   inputs:
     - oohost: rpa.mfdemos.com
     - ooprotocol: https
@@ -115,7 +115,7 @@ flow:
           - 'FALSE': SUCCESS
     - wait_for_flow:
         do:
-          yrDynamicFlows.internal.wait_for_flow:
+          yrDynamicFlows.internal.remote_flow.wait_for_flow:
             - oohost: '${oohost}'
             - ooprotocol: '${ooprotocol}'
             - ooport: '${ooport}'

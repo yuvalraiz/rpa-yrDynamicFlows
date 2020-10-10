@@ -1,4 +1,4 @@
-namespace: yrDynamicFlows.internal
+namespace: YuvalRaiz.DynamicFlows.Internal.db_retrieve_data
 flow:
   name: get_plugin
   inputs:

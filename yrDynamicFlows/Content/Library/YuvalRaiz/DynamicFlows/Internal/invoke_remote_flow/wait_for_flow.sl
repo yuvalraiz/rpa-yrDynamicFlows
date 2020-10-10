@@ -2,7 +2,7 @@
 #!!
 #!!#
 ########################################################################################################################
-namespace: yrDynamicFlows.internal.remote_flow
+namespace: YuvalRaiz.DynamicFlows.Internal.invoke_remote_flow
 flow:
   name: wait_for_flow
   inputs:
