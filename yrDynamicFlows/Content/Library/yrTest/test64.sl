@@ -2,7 +2,7 @@ namespace: yrTest
 flow:
   name: test64
   inputs:
-    - input1: yuval
+    - input1
   workflow:
     - base64_encoder:
         do:
@@ -17,6 +17,17 @@ flow:
         do:
           io.cloudslang.base.utils.base64_decoder:
             - data: '${result}'
+        publish:
+          - data: '${result}'
+        navigate:
+          - SUCCESS: do_nothing
+          - FAILURE: on_failure
+    - do_nothing:
+        do:
+          io.cloudslang.base.utils.do_nothing:
+            - data: '${input1}'
+        publish:
+          - output_0: '${base64.b64decode(data)}'
         navigate:
           - SUCCESS: SUCCESS
           - FAILURE: on_failure
@@ -27,13 +38,16 @@ extensions:
   graph:
     steps:
       base64_encoder:
-        x: 95
+        x: 94
         'y': 150
       base64_decoder:
         x: 283
         'y': 154
+      do_nothing:
+        x: 345
+        'y': 353
         navigate:
-          4621c631-98da-6c12-afad-2eeae9755322:
+          5dc37d33-9e02-2c2a-7171-91900832dd19:
             targetId: 6f51f491-8da0-5791-b4b3-0914dba80cd0
             port: SUCCESS
     results:

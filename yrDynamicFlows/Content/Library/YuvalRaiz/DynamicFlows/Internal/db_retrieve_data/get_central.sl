@@ -2,13 +2,13 @@ namespace: YuvalRaiz.DynamicFlows.Internal.db_retrieve_data
 flow:
   name: get_central
   inputs:
-    - dbhost: db.mfdemos.com
-    - dbport: '5432'
-    - dbusername: postgres
+    - dbhost
+    - dbport
+    - dbusername
     - dbpassword:
         sensitive: true
-    - dbname: yrDynamicRunning
-    - central_id: yuval.raiz-rpa.mfdemos.com
+    - dbname
+    - central_id
   workflow:
     - get_data:
         do:
@@ -35,10 +35,10 @@ flow:
               value: "${return_result.split('_|_')[4]}"
               sensitive: true
         navigate:
-          - HAS_MORE: dec_password
-          - NO_MORE: dec_password
+          - HAS_MORE: decrypt_password
+          - NO_MORE: decrypt_password
           - FAILURE: on_failure
-    - dec_password:
+    - decrypt_password:
         do:
           io.cloudslang.base.utils.base64_decoder:
             - data: '${oopassword}'
@@ -48,7 +48,7 @@ flow:
               sensitive: true
         navigate:
           - SUCCESS: SUCCESS
-          - FAILURE: on_failure
+          - FAILURE: SUCCESS
   outputs:
     - oohost: '${oohost}'
     - ooprotocol: '${ooprotocol}'
@@ -63,16 +63,19 @@ flow:
 extensions:
   graph:
     steps:
-      dec_password:
-        x: 249
-        'y': 112
+      get_data:
+        x: 72
+        'y': 123
+      decrypt_password:
+        x: 250
+        'y': 113
         navigate:
           45ae0658-18e6-fbf4-8d84-649d26ec5c30:
             targetId: 071584c5-4d33-b1b1-3a03-5445a61079ad
             port: SUCCESS
-      get_data:
-        x: 72
-        'y': 123
+          0d277e17-03dc-01b6-1223-95d94e2aad39:
+            targetId: 071584c5-4d33-b1b1-3a03-5445a61079ad
+            port: FAILURE
     results:
       SUCCESS:
         071584c5-4d33-b1b1-3a03-5445a61079ad:
