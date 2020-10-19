@@ -8,9 +8,9 @@ flow:
     - dbpassword:
         sensitive: true
     - dbname: yrDynamicRunning
-    - plugin_id
+    - plugin_id: MFDemos_AddUserToGroup
     - central_id: yuval.raiz-rpa.mfdemos.com
-    - flow_uuid: YuvalRaiz.mailu.mailu_create_alias
+    - flow_uuid: MFDemos.UserManagement.plugins.openldap_add_user_to_group
   workflow:
     - get_central:
         do:
@@ -35,7 +35,7 @@ flow:
     - get_flow_inputs:
         do:
           io.cloudslang.base.http.http_client_get:
-            - url: "${'''%s://%s:%s/oo/rest/flows/%s/inputsn''' % (ooprotocol, oohost, ooport,flow_uuid)}"
+            - url: "${'''%s://%s:%s/oo/rest/flows/%s/inputs''' % (ooprotocol, oohost, ooport,flow_uuid)}"
             - auth_type: basic
             - username: '${oousername}'
             - password:
@@ -43,39 +43,11 @@ flow:
                 sensitive: true
             - trust_all_roots: 'true'
         publish:
-          - X_CSRF_TOKEN: "${response_headers.split('X-CSRF-TOKEN: ')[1].split('\\n')[0]}"
           - return_code
+          - input_list: "${cs_json_query(return_result,'$..name')}"
+          - input_json_data: '${return_result}'
         navigate:
           - SUCCESS: is_flow_exists
-          - FAILURE: on_failure
-    - enc_password:
-        do:
-          io.cloudslang.base.utils.base64_encoder:
-            - data: '${oopassword}'
-        publish:
-          - oopassword:
-              value: '${result}'
-              sensitive: true
-        navigate:
-          - SUCCESS: sql_command
-          - FAILURE: on_failure
-    - sql_command:
-        do:
-          io.cloudslang.base.database.sql_command:
-            - db_server_name: '${dbhost}'
-            - db_type: PostgreSQL
-            - username: '${dbusername}'
-            - password:
-                value: '${dbpassword}'
-                sensitive: true
-            - instance: null
-            - db_port: '${dbport}'
-            - database_name: '${dbname}'
-            - db_url: '${"jdbc:postgresql://%s:%s/%s" % (dbhost,dbport,dbname)}'
-            - command: "${'''insert into centrals (id, host, protocol, port, username, password) values ('%s', '%s','%s','%s','%s','%s' )''' % (central_id, oohost, ooprotocol,ooport,oousername,oopassword)}"
-            - trust_all_roots: 'true'
-        navigate:
-          - SUCCESS: SUCCESS
           - FAILURE: on_failure
     - sql_command_1:
         do:
@@ -93,53 +65,70 @@ flow:
             - command: "${'''insert into plugins (plugin_id, flow_uuid, central_id) values ('%s', '%s','%s')''' % (plugin_id, flow_uuid, central_id)}"
             - trust_all_roots: 'true'
         navigate:
-          - SUCCESS: enc_password
+          - SUCCESS: _DynamicFlows_Plugin_set_Input_from_jsom
           - FAILURE: on_failure
     - is_flow_exists:
         do:
           io.cloudslang.base.utils.is_true:
             - bool_value: "${str(return_code =='200')}"
         navigate:
-          - 'TRUE': sql_command_1
-          - 'FALSE': FAILURE
+          - 'TRUE': FAILURE
+          - 'FALSE': sql_command_1
+    - _DynamicFlows_Plugin_set_Input_from_jsom:
+        loop:
+          for: in_name in eval(input_list)
+          do:
+            YuvalRaiz.DynamicFlows.Configure._DynamicFlows_Plugin_set_Input_from_jsom:
+              - dbhost: '${dbhost}'
+              - dbport: '${dbport}'
+              - dbusername: '${dbusername}'
+              - dbpassword:
+                  value: '${dbpassword}'
+                  sensitive: true
+              - dbname: '${dbname}'
+              - plugin_id: '${plugin_id}'
+              - input_name: '${in_name}'
+              - json_data: '${input_json_data}'
+          break:
+            - FAILURE
+        navigate:
+          - SUCCESS: SUCCESS
+          - FAILURE: on_failure
   results:
-    - FAILURE
     - SUCCESS
+    - FAILURE
 extensions:
   graph:
     steps:
-      sql_command_1:
-        x: 503
-        'y': 121
-      enc_password:
-        x: 676
-        'y': 285
-      sql_command:
-        x: 888
-        'y': 278
-        navigate:
-          3da05a51-a232-a734-2b42-5879c39cff1c:
-            targetId: 071584c5-4d33-b1b1-3a03-5445a61079ad
-            port: SUCCESS
       get_central:
         x: 40
         'y': 118
       get_flow_inputs:
         x: 195
-        'y': 119
+        'y': 118
+      sql_command_1:
+        x: 451
+        'y': 142
       is_flow_exists:
-        x: 322
-        'y': 123
+        x: 327
+        'y': 133
         navigate:
-          a0e2f0dd-5557-e893-42fe-182808f158f4:
-            targetId: daa4f7e5-9b2f-726b-cabe-6b66ec19a93f
-            port: 'FALSE'
+          81ccd218-ee7d-ee17-1419-84cfc1c7b7cc:
+            targetId: b2425d40-5316-0d28-a648-4b5c7c60cab7
+            port: 'TRUE'
+      _DynamicFlows_Plugin_set_Input_from_jsom:
+        x: 667
+        'y': 129
+        navigate:
+          18e96e58-dbc9-9c7f-1c62-41779b50decb:
+            targetId: 071584c5-4d33-b1b1-3a03-5445a61079ad
+            port: SUCCESS
     results:
       SUCCESS:
         071584c5-4d33-b1b1-3a03-5445a61079ad:
-          x: 1004
-          'y': 124
+          x: 1023
+          'y': 135
       FAILURE:
-        daa4f7e5-9b2f-726b-cabe-6b66ec19a93f:
-          x: 319
-          'y': 310
+        b2425d40-5316-0d28-a648-4b5c7c60cab7:
+          x: 331
+          'y': 346
