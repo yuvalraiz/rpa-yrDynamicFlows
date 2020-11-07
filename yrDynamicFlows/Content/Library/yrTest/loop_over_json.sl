@@ -15,16 +15,18 @@ flow:
           - FAILURE: on_failure
     - do_nothing_1:
         loop:
-          for: ''
+          for: json_item in input_list
           do:
             io.cloudslang.base.utils.do_nothing:
-              - json_object: null
+              - json_object: '${json_item}'
           break:
             - FAILURE
         navigate:
+          - SUCCESS: SUCCESS
           - FAILURE: on_failure
   results:
     - FAILURE
+    - SUCCESS
 extensions:
   graph:
     steps:
@@ -34,3 +36,12 @@ extensions:
       do_nothing_1:
         x: 304
         'y': 136
+        navigate:
+          42ff9b71-73b6-18f2-f3ab-0844fe3656bb:
+            targetId: c6aee840-9393-4e44-7b1c-99dc8915d99c
+            port: SUCCESS
+    results:
+      SUCCESS:
+        c6aee840-9393-4e44-7b1c-99dc8915d99c:
+          x: 457
+          'y': 122

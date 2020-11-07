@@ -2,13 +2,14 @@ namespace: YuvalRaiz.DynamicFlows.Internal.db_retrieve_data
 flow:
   name: get_plugin_inputs
   inputs:
-    - dbhost: db.mfdemos.com
+    - dbhost
     - dbport: '5432'
-    - dbusername: postgres
+    - dbusername
     - dbpassword:
         sensitive: true
-    - dbname: yrDynamicRunning
-    - plugin_name: GetTotalCommisionForAM
+    - dbname
+    - plugin_name
+    - input_hash
   workflow:
     - do_nothing_1:
         do:
@@ -44,6 +45,7 @@ flow:
         do:
           YuvalRaiz.DynamicFlows.Internal.db_retrieve_data.build_input_sections:
             - all_inputs: '${all_inputs}'
+            - input_hash: '${input_hash}'
         publish:
           - input_section
           - secret_input_section
